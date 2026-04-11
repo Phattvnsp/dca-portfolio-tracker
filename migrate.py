@@ -68,11 +68,10 @@ for col in ['quantity', 'actual_value']:
 # 6. Insert into SQLite
 with sqlite3.connect('portfolio.db') as conn:
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS transactions")
     
     # Create AUTOINCREMENT ID
     cursor.execute('''
-        CREATE TABLE transactions (
+        CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT,
             time TEXT,
