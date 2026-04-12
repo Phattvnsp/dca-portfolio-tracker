@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Next.js
+.next/
+node_modules/
+
+# Database
+portfolio.db
+portfolio.db-journal
+portfolio.db-wal
+portfolio.db-shm
+
+# Python
+.venv/
+__pycache__/
+
+# Data (Keep mock data, hide real portfolio)
+data/my_real_portfolio.xlsx
