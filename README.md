@@ -2,8 +2,6 @@
 
 A investment tracking tool built to solve a personal challenge: managing and visualizing long-term DCA (Dollar-Cost Averaging) strategies with precision and ease.
 
-<img width="1470" height="923" alt="Screenshot 2569-04-13 at 00 07 06" src="https://github.com/user-attachments/assets/d000c8d4-0f52-4651-926b-ce12a0ef3529" />
-
 ## 🚀 The Motivation
 This project was built to centralize transaction history from Excel, automate calculations (Net Cash Flow vs. Valuation), and provide a dashboard experience that tracks every fractional share.
 
@@ -54,4 +52,7 @@ While this is a personal tool, the repository includes a `data/mock_data.xlsx` t
 ---
 Designed and developed for personal use as part of a modern web engineering exploration.
 
-This project include AI using, which purpose is to learning the complex part that I'm new to it. :D
+FYI, this project incorporates AI to help me understand complex areas that are new to me.
+
+Sincerely,
+Phatt. :D
