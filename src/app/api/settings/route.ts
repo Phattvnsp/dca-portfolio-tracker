@@ -13,6 +13,12 @@ export async function GET(request: Request) {
     }
 
     const db = getDb();
+
+    if (key === 'valuationHistory') {
+       const rows = db.prepare('SELECT date, value FROM valuation_history ORDER BY date ASC').all() as { date: string, value: number }[];
+       return Response.json(rows);
+    }
+
     const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value: string } | undefined;
 
     return Response.json({ value: row?.value ?? null });
@@ -26,7 +32,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { key, value } = body;
+    const { key, value, date } = body;
 
     if (!key) {
       return Response.json({ error: 'Key is required' }, { status: 400 });
@@ -34,6 +40,14 @@ export async function POST(request: Request) {
 
     const db = getDb();
     db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run(key, String(value));
+
+    // Special: If saving currentPortfolioValue, also record to history
+    if (key === 'currentPortfolioValue') {
+      const recordDate = date || new Date().toISOString().split('T')[0];
+      // Keep only one record per day to avoid bloating
+      db.prepare('INSERT OR REPLACE INTO valuation_history (date, value) VALUES (?, ?)')
+        .run(recordDate, parseFloat(value));
+    }
 
     return Response.json({ message: 'Setting saved', key, value });
   } catch (error) {

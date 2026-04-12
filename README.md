@@ -51,3 +51,5 @@ While this is a personal tool, the repository includes a `data/mock_data.xlsx` t
 
 ---
 Designed and developed for personal use as part of a modern web engineering exploration.
+
+This project include AI using, which purpose is to learning the complex part that I'm new to it. :D

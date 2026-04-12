@@ -47,4 +47,5 @@ export interface StockAllocation {
 export interface PerformanceDataPoint {
   date: string;
   cumulativeInvested: number;
+  currentValue?: number; // Optional historical valuation
 }

@@ -33,6 +33,15 @@ export const getDb = (): Database.Database => {
         value TEXT
       )
     `);
+
+    // Create valuation history table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS valuation_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT DEFAULT CURRENT_DATE,
+        value REAL
+      )
+    `);
   }
   return db;
 };

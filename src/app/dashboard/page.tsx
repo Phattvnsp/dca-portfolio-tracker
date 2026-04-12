@@ -13,21 +13,28 @@ import type { Transaction, PortfolioSummary, StockAllocation, PerformanceDataPoi
 const DashboardPage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currentValue, setCurrentValue] = useState<string>('');
+  const [valuationDate, setValuationDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
   const [savedValue, setSavedValue] = useState<number>(0);
+  const [historyDocs, setHistoryDocs] = useState<{date: string, value: number}[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [txRes, settingsRes] = await Promise.all([
+      const [txRes, settingsRes, histRes] = await Promise.all([
         fetch('/api/transactions'),
         fetch('/api/settings?key=currentPortfolioValue'),
+        fetch('/api/settings?key=valuationHistory'),
       ]);
       const txData = await txRes.json();
       const settingsData = await settingsRes.json();
+      const histData = await histRes.json();
 
       setTransactions(txData);
+      setHistoryDocs(Array.isArray(histData) ? histData : []);
       if (settingsData.value) {
         setSavedValue(parseFloat(settingsData.value));
         setCurrentValue(settingsData.value);
@@ -98,23 +105,45 @@ const DashboardPage = () => {
 
   // ─── Compute Performance ───
   const computePerformance = (): PerformanceDataPoint[] => {
-    const sorted = [...transactions]
-      .filter((t) => t.action === 'BUY')
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    const dateMap = new Map<string, number>();
-    let cumulative = 0;
-
-    sorted.forEach((t) => {
-      const dateKey = new Date(t.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
-      cumulative += Math.abs(t.actual_value);
-      dateMap.set(dateKey, cumulative);
+    // 1. Group all transactions by date and calculate Net Cash Flow (Cost) per day
+    const dailyNetFlow = new Map<string, number>();
+    transactions.forEach((t) => {
+      const txDate = new Date(t.date).toISOString().split('T')[0];
+      const amount = t.action === 'BUY' ? Math.abs(t.actual_value) : -Math.abs(t.actual_value);
+      dailyNetFlow.set(txDate, (dailyNetFlow.get(txDate) || 0) + amount);
     });
 
-    return Array.from(dateMap.entries()).map(([date, cumulativeInvested]) => ({
-      date,
-      cumulativeInvested,
-    }));
+    // 2. Get all unique dates from both Tx and History
+    const allDates = new Set<string>([
+      ...Array.from(dailyNetFlow.keys()),
+      ...historyDocs.map(d => d.date)
+    ]);
+    const sortedDates = Array.from(allDates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+    // 3. Calculate running cost chronologically
+    let runningCost = 0;
+    const result: PerformanceDataPoint[] = [];
+    const historyMap = new Map(historyDocs.map(d => [d.date, d.value]));
+
+    for (const d of sortedDates) {
+      if (dailyNetFlow.has(d)) {
+        runningCost += dailyNetFlow.get(d)!;
+      }
+      
+      const formattedDate = new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+      const point: any = {
+        date: formattedDate,
+        cumulativeInvested: runningCost,
+      };
+      
+      if (historyMap.has(d)) {
+        point.currentValue = historyMap.get(d);
+      }
+      
+      result.push(point);
+    }
+
+    return result;
   };
 
   // ─── Save Current Value ───
@@ -127,9 +156,11 @@ const DashboardPage = () => {
       await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'currentPortfolioValue', value: numValue }),
+        body: JSON.stringify({ key: 'currentPortfolioValue', value: numValue, date: valuationDate }),
       });
       setSavedValue(numValue);
+      // Option: Refetch if we want the chart to instantly update with history
+      fetchData();
     } catch (error) {
       console.error('Failed to save:', error);
     } finally {
@@ -199,29 +230,44 @@ const DashboardPage = () => {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-3">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">฿</span>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex-1 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground ml-1">Valuation Date</label>
               <Input
-                id="current-value-input"
-                type="number"
-                placeholder="0.00"
-                value={currentValue}
-                onChange={(e) => setCurrentValue(e.target.value)}
-                className="pl-7"
-                min="0"
-                step="0.01"
+                type="date"
+                value={valuationDate}
+                onChange={(e) => setValuationDate(e.target.value)}
+                className="w-full sm:w-auto"
+                max={new Date().toISOString().split('T')[0]}
               />
             </div>
-            <Button
-              id="save-value-btn"
-              onClick={handleSaveValue}
-              disabled={saving || !currentValue}
-              className="gap-2 bg-mint text-foreground hover:bg-mint-dark"
-            >
-              <Save className="h-3.5 w-3.5" />
-              {saving ? 'Saving...' : 'Save'}
-            </Button>
+            <div className="flex-[2] space-y-1">
+              <label className="text-xs font-medium text-muted-foreground ml-1">Total Value (THB)</label>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">฿</span>
+                  <Input
+                    id="current-value-input"
+                    type="number"
+                    placeholder="0.00"
+                    value={currentValue}
+                    onChange={(e) => setCurrentValue(e.target.value)}
+                    className="pl-7"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                <Button
+                  id="save-value-btn"
+                  onClick={handleSaveValue}
+                  disabled={saving || !currentValue || !valuationDate}
+                  className="gap-2 bg-mint text-foreground hover:bg-mint-dark"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  {saving ? 'Saving...' : 'Save Record'}
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

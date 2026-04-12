@@ -17,6 +17,7 @@ const formatCurrency = (value: number): string => {
 interface TooltipPayloadItem {
   value: number;
   dataKey: string;
+  color?: string;
 }
 
 const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) => {
@@ -24,9 +25,20 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
     return (
       <div className="rounded-lg border border-border bg-card px-4 py-3 shadow-lg">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-sm font-semibold text-foreground">
-          ฿{new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(payload[0].value)}
-        </p>
+        <div className="mt-1 space-y-1">
+          {payload.map((item, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <div 
+                className="h-2 w-2 rounded-full" 
+                style={{ backgroundColor: item.color }} 
+              />
+              <p className="text-sm font-semibold text-foreground flex-1">
+                {item.dataKey === 'cumulativeInvested' ? 'Cost: ' : 'Value: '}
+                ฿{new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(item.value)}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -54,13 +66,17 @@ const PerformanceChart = ({ data }: PerformanceChartProps) => {
         <p className="text-xs text-muted-foreground">Cumulative investment over time</p>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%" minHeight={1} minWidth={1}>
             <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="mintGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#52F2D0" stopOpacity={0.3} />
                   <stop offset="100%" stopColor="#52F2D0" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a855f7" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#a855f7" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0.005 90)" vertical={false} />
@@ -83,11 +99,31 @@ const PerformanceChart = ({ data }: PerformanceChartProps) => {
               <Area
                 type="monotone"
                 dataKey="cumulativeInvested"
+                name="Cost"
                 stroke="#52F2D0"
                 strokeWidth={2.5}
                 fill="url(#mintGradient)"
                 dot={false}
                 activeDot={{ r: 5, fill: '#52F2D0', stroke: '#fff', strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="currentValue"
+                name="Valuation"
+                stroke="#a855f7"
+                strokeWidth={2.5}
+                fill="url(#purpleGradient)"
+                dot={(props) => {
+                  const { cx, cy, payload } = props;
+                  if (payload.currentValue) {
+                    return (
+                      <circle cx={cx} cy={cy} r={3} fill="#a855f7" stroke="none" />
+                    );
+                  }
+                  return null;
+                }}
+                activeDot={{ r: 5, fill: '#a855f7', stroke: '#fff', strokeWidth: 2 }}
+                connectNulls={true}
               />
             </AreaChart>
           </ResponsiveContainer>
