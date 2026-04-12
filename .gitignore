@@ -56,3 +56,8 @@ __pycache__/
 
 # Data (Keep mock data, hide real portfolio)
 data/my_real_portfolio.xlsx
+
+# AI tracking files
+.antigravity/
+AGENTS.md
+CLAUDE.md
