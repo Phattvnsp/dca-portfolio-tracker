@@ -35,7 +35,7 @@ const DashboardCards = ({ summary }: DashboardCardsProps) => {
       icon: DollarSign,
       iconBg: 'bg-mint/10',
       iconColor: 'text-mint-dark',
-      subtitle: 'Portfolio valuation',
+      subtitle: summary.lastUpdated ? `Last updated: ${new Date(summary.lastUpdated).toLocaleDateString('en-GB')}` : 'Portfolio valuation'
     },
     {
       id: 'total-gain-loss',

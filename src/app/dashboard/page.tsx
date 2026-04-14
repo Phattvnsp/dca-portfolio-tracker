@@ -17,7 +17,7 @@ const DashboardPage = () => {
     new Date().toISOString().split('T')[0]
   );
   const [savedValue, setSavedValue] = useState<number>(0);
-  const [historyDocs, setHistoryDocs] = useState<{date: string, value: number}[]>([]);
+  const [historyDocs, setHistoryDocs] = useState<{ date: string, value: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -88,7 +88,7 @@ const DashboardPage = () => {
     // Actually, allocations already hold the net totalInvested (Buy - Sell) for active stocks!
     // But wait, if they sold halfway, the cost basis formula should be AVERAGE COST, not just (Total Buy - Total Sell cash)
     // To keep it simple, we'll use Total Cash In - Total Cash Out as Net Cash Flow.
-    
+
     // Method: Net Cash Flow (Total Deposits - Total Withdrawals)
     const netInvested = transactions.reduce((sum, t) => {
       if (t.action === 'BUY') return sum + Math.abs(t.actual_value);
@@ -99,8 +99,10 @@ const DashboardPage = () => {
     const cv = savedValue || netInvested;
     const totalGainLoss = cv - netInvested;
     const gainLossPercentage = netInvested > 0 ? (totalGainLoss / netInvested) * 100 : 0;
+    const latestDoc = historyDocs[historyDocs.length - 1];
+    const lastUpdated = latestDoc ? latestDoc.date : null;
 
-    return { totalInvested: netInvested, currentValue: cv, totalGainLoss, gainLossPercentage };
+    return { totalInvested: netInvested, currentValue: cv, totalGainLoss, gainLossPercentage, lastUpdated };
   };
 
   // ─── Compute Performance ───
@@ -129,17 +131,17 @@ const DashboardPage = () => {
       if (dailyNetFlow.has(d)) {
         runningCost += dailyNetFlow.get(d)!;
       }
-      
+
       const formattedDate = new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
       const point: any = {
         date: formattedDate,
         cumulativeInvested: runningCost,
       };
-      
+
       if (historyMap.has(d)) {
         point.currentValue = historyMap.get(d);
       }
-      
+
       result.push(point);
     }
 

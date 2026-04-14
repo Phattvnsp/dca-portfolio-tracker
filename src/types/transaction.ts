@@ -35,6 +35,7 @@ export interface PortfolioSummary {
   currentValue: number;
   totalGainLoss: number;
   gainLossPercentage: number;
+  lastUpdated?: string | null;
 }
 
 export interface StockAllocation {
