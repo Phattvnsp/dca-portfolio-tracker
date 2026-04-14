@@ -2,7 +2,12 @@
 
 A investment tracking tool built to solve a personal challenge: managing and visualizing long-term DCA (Dollar-Cost Averaging) strategies with precision and ease.
 
-<img width="1470" height="923" alt="Screenshot 2569-04-13 at 00 28 26" src="https://github.com/user-attachments/assets/5793ff9b-1d3a-4f89-bdf1-b7c8ee79111b" />
+<img width="1470" height="923" alt="Screenshot 2569-04-15 at 00 05 21" src="https://github.com/user-attachments/assets/0b895213-406f-4cf7-8195-a96ca750d309" />
+
+<img width="1470" height="923" alt="Screenshot 2569-04-15 at 00 05 36" src="https://github.com/user-attachments/assets/39bab206-79dd-4671-aa6a-1dd10ec3d219" />
+
+<img width="1470" height="923" alt="image" src="https://github.com/user-attachments/assets/3729d15b-c05e-4548-a32b-4eac25b17565" />
+
 
 ## 🚀 The Motivation
 This project was built to centralize transaction history from Excel, automate calculations (Net Cash Flow vs. Valuation), and provide a dashboard experience that tracks every fractional share.
