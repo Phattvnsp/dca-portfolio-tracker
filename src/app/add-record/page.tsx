@@ -184,7 +184,7 @@ const AddRecordPage = () => {
                   id="actual_value"
                   name="actual_value"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0.01"
                   placeholder="0.00"
                   required
@@ -198,9 +198,9 @@ const AddRecordPage = () => {
                   id="quantity"
                   name="quantity"
                   type="number"
-                  step="0.00001"
-                  min="0.00001"
-                  placeholder="0"
+                  step="any"
+                  min="0.00000001"
+                  placeholder="0.00"
                   required
                   value={formData.quantity}
                   onChange={handleChange}
@@ -212,7 +212,7 @@ const AddRecordPage = () => {
                   id="target_price"
                   name="target_price"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   placeholder="0.00"
                   value={formData.target_price}
@@ -225,7 +225,7 @@ const AddRecordPage = () => {
                   id="profit_loss"
                   name="profit_loss"
                   type="number"
-                  step="0.01"
+                  step="any"
                   placeholder="0.00"
                   value={formData.profit_loss}
                   onChange={handleChange}
