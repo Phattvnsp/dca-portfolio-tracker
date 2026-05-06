@@ -2,7 +2,7 @@
 
 A investment tracking tool built to solve a personal challenge: managing and visualizing long-term DCA (Dollar-Cost Averaging) strategies with precision and ease.
 
-<img width="1470" height="923" alt="Screenshot 2569-04-15 at 00 05 21" src="https://github.com/user-attachments/assets/0b895213-406f-4cf7-8195-a96ca750d309" />
+<img width="1436" height="941" alt="Screenshot 2569-05-06 at 21 13 57" src="https://github.com/user-attachments/assets/6acefd50-fec8-4c2b-8965-d80151bf726e" />
 
 <img width="1470" height="923" alt="Screenshot 2569-04-15 at 00 05 36" src="https://github.com/user-attachments/assets/39bab206-79dd-4671-aa6a-1dd10ec3d219" />
 
